@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Painel · Diney de Souza</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0c0a0b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/painel-192.png">
+<link rel="apple-touch-icon" href="icons/painel-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Painel Diney">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400&family=Manrope:wght@400;600&display=swap">
+<style>
+/* Painel do Diney: uma tela por vez, botões grandes, nada técnico */
+:root {
+  --bg: #0c0a0b; --surface: #171314; --card: #1d1819; --fg: #efe7df; --muted: #a39890; --gold: #d9b37a;
+  --line: rgba(239,231,223,.12); --red: #e0483e; --green: #25d366; --ok: #7cc89a;
+  --display: "Bodoni Moda", "Didot", "Times New Roman", serif;
+  --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.5;
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.wrap { max-width: 640px; margin: 0 auto; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 16px; }
+.brand { font-family: var(--display); font-size: 1.25rem; }
+.brand em { color: var(--gold); font-style: normal; }
+.link { background: none; border: 0; color: var(--gold); font: inherit; font-size: .95rem; cursor: pointer; padding: 8px; text-decoration: none; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(1.9rem, 7vw, 2.5rem); line-height: 1.1; margin: 12px 0 6px; }
+h2 { font-family: var(--display); font-weight: 400; font-size: 1.4rem; margin: 0; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 14px; margin-top: 16px; }
+label { display: grid; gap: 6px; font-size: .9rem; color: var(--muted); }
+input, select, textarea {
+  font: inherit; color: var(--fg); background: var(--bg); width: 100%;
+  border: 1px solid var(--line); border-radius: 12px; padding: 13px 14px; min-height: 50px;
+}
+textarea { min-height: 92px; resize: vertical; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); }
+select option { background: var(--surface); }
+.btn { font: inherit; font-weight: 600; border: 0; border-radius: 12px; padding: 14px 18px; min-height: 52px; cursor: pointer; background: var(--gold); color: var(--bg); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.ghost { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+.btn.green { background: var(--green); color: #fff; }
+.btn.full { width: 100%; }
+.btn[disabled] { opacity: .55; cursor: progress; }
+.del { font: inherit; font-size: .88rem; background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; cursor: pointer; }
+.del.sure { border-color: var(--red); color: var(--red); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.msg { font-size: .92rem; color: var(--gold); min-height: 1.3em; }
+.msg.err { color: var(--red); }
+
+/* menu inicial */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.tile { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 20px 16px; min-height: 130px; text-align: left; color: var(--fg); font: inherit; cursor: pointer; display: grid; align-content: space-between; gap: 10px; }
+.tile:hover { border-color: var(--gold); }
+.tile svg { width: 30px; height: 30px; color: var(--gold); }
+.tile b { font-size: 1.05rem; }
+.tile small { color: var(--muted); font-size: .85rem; }
+.badge { position: absolute; top: 12px; right: 12px; min-width: 26px; height: 26px; padding: 0 8px; border-radius: 13px; background: var(--red); color: #fff; font-weight: 600; font-size: .85rem; display: grid; place-items: center; }
+.back { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; }
+
+/* pedidos */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: center; }
+.stat b { display: block; font-family: var(--display); font-weight: 400; font-size: 1.8rem; color: var(--gold); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat span { font-size: .78rem; color: var(--muted); }
+.ped { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 14px; padding: 16px; display: grid; gap: 8px; margin-top: 12px; }
+.ped.feito { border-left-color: var(--ok); opacity: .75; }
+.ped.novo { box-shadow: 0 0 0 1px var(--gold); }
+.ped-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.ped-top b { font-size: 1.1rem; }
+.tag { font-size: .75rem; font-weight: 600; border-radius: 999px; padding: 3px 10px; background: rgba(217,179,122,.15); color: var(--gold); }
+.tag.ok { background: rgba(124,200,154,.15); color: var(--ok); }
+.ped .info { color: var(--muted); font-size: .95rem; display: grid; gap: 2px; }
+.ped .info strong { color: var(--fg); }
+.ped .txt { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .95rem; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.acts .btn { min-height: 44px; padding: 10px 14px; font-size: .92rem; }
+.empty { text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 14px; padding: 28px 16px; margin-top: 14px; }
+
+/* fotos e vídeos */
+.drop { position: relative; display: grid; place-items: center; gap: 4px; text-align: center; padding: 26px 14px; border: 2px dashed var(--gold); border-radius: 14px; cursor: pointer; color: var(--fg); background: rgba(217,179,122,.05); }
+.drop b { font-size: 1.1rem; }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .3s; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); gap: 10px; margin-top: 14px; }
+.item { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-width: 0; }
+.th { aspect-ratio: 1; background: #000; position: relative; }
+.th img, .th video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.th .lk { position: absolute; inset: 0; display: grid; place-items: center; font-size: .8rem; color: var(--gold); background: #1a1412; }
+.item figcaption { padding: 8px; display: grid; gap: 6px; font-size: .82rem; }
+.item figcaption span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.seg { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-top: 16px; }
+.seg button { flex: 1; font: inherit; border: 0; background: none; color: var(--muted); padding: 10px; border-radius: 9px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--gold); color: var(--bg); font-weight: 600; }
+
+/* textos */
+.svc { border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; background: var(--card); }
+.svc-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.save-bar { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); margin-top: 18px; display: grid; gap: 6px; background: var(--bg); padding-top: 8px; }
+
+/* contatos */
+.switch-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.switch-row small { display: block; color: var(--muted); font-size: .85rem; }
+.switch { flex: none; width: 56px; height: 32px; border-radius: 999px; border: 1px solid var(--line); background: #2a2526; position: relative; cursor: pointer; padding: 0; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--fg); transition: transform .25s; }
+.switch[aria-checked="true"] { background: var(--green); border-color: var(--green); }
+.switch[aria-checked="true"] i { transform: translateX(24px); }
+.demo { display: grid; justify-items: center; gap: 8px; }
+.phone { width: 180px; border: 2px solid #3a3433; border-radius: 22px; padding: 18px 12px 16px; background: #0c0a0b; display: grid; gap: 7px; position: relative; overflow: hidden; }
+.ph-t { font-family: var(--display); text-align: center; }
+.ph-b { border-radius: 8px; padding: 7px 10px; font-size: .75rem; font-weight: 600; color: #fff; }
+.ph-ig { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); }
+.ph-orc { background: var(--gold); color: var(--bg); }
+.ph-wa { background: var(--green); max-height: 0; padding-block: 0; opacity: 0; transition: max-height .5s, padding .5s, opacity .5s; }
+.demo.on .ph-wa { max-height: 40px; padding-block: 7px; opacity: 1; animation: glow 1.6s ease-in-out infinite; }
+@keyframes glow { 50% { box-shadow: 0 0 14px rgba(37,211,102,.8); } }
+.finger { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.55); border: 2px solid #fff; left: 50%; top: 105%; opacity: 0; }
+.demo.tap .finger { animation: tap 1.4s ease forwards; }
+@keyframes tap { 35% { top: 52px; opacity: 1; } 55% { transform: scale(.8); } 75% { transform: scale(1); opacity: 1; } 100% { top: 52px; opacity: 0; } }
+.logo-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.logo-prev { width: 88px; height: 88px; border-radius: 14px; border: 1px dashed var(--gold); display: grid; place-items: center; overflow: hidden; background: var(--bg); font-size: .75rem; color: var(--muted); }
+.logo-prev img { width: 100%; height: 100%; object-fit: contain; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); top: calc(14px + env(safe-area-inset-top, 0px)); background: var(--surface); border: 1px solid var(--gold); color: var(--fg); padding: 12px 18px; border-radius: 999px; z-index: 50; box-shadow: 0 8px 30px rgba(0,0,0,.5); max-width: calc(100% - 32px); }
+@media (prefers-reduced-motion: reduce) { .demo.on .ph-wa, .demo.tap .finger { animation: none; } }
+.fundo-prev { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted); font-size: .85rem; }
+.fundo-prev video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(6px) brightness(.45); transform: scale(1.1); }
+.fundo-prev b { position: relative; color: var(--fg); font-family: var(--display); font-weight: 400; font-size: 1.2rem; }
+.tile.wide { grid-column: 1 / -1; min-height: 110px; }
+.lnk { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-top: 10px; display: grid; gap: 8px; }
+.lnk-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.lnk-top b { font-size: 1rem; }
+.lnk .url { color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+.src { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 3px 10px; font-size: .78rem; font-weight: 600; color: #fff; }
+.src.yt { background: #ff0033; } .src.ig { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); }
+.fundo-prev video { filter: blur(8px) brightness(.2) !important; opacity: .6; }
+.prow { width: 100%; text-align: left; font: inherit; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-top: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+.prow:hover { border-color: var(--gold); }
+.prow .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--red); flex: none; box-shadow: 0 0 10px rgba(224,72,62,.6); }
+.prow .dot.lido { background: transparent; box-shadow: none; border: 1px solid var(--line); }
+.prow .pinfo { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.prow .pinfo b { font-size: 1.05rem; }
+.prow .pinfo span { color: var(--muted); font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prow .seta { color: var(--gold); font-size: 1.4rem; }
+.det { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px 18px; margin-top: 14px; display: grid; gap: 6px; }
+.det-tag { justify-self: start; font-size: .78rem; font-weight: 600; border-radius: 999px; padding: 4px 12px; background: rgba(217,179,122,.15); color: var(--gold); }
+.det h1 { margin: 6px 0 0; }
+.det-quando { color: var(--muted); }
+.det-lista { margin: 14px 0 18px; display: grid; gap: 0; }
+.det-lista > div { padding: 12px 0; border-top: 1px solid var(--line); }
+.det-lista dt { color: var(--muted); font-size: .82rem; }
+.det-lista dd { margin: 2px 0 0; font-size: 1.08rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+.det-wa { min-height: 60px; font-size: 1.1rem; }
+.decide { display: grid; gap: 12px; margin-top: 14px; padding-top: 16px; border-top: 1px solid var(--line); }
+.decide-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn.red { color: var(--red); border-color: var(--red); }
+.aceito-box { margin-top: 14px; padding: 14px; border-radius: 12px; background: rgba(124,200,154,.1); border: 1px solid rgba(124,200,154,.4); display: grid; gap: 2px; }
+.aceito-box b { color: var(--ok); }
+.aceito-box span { font-family: var(--display); font-size: 1.5rem; }
+.aceito-box .link { justify-self: start; padding: 4px 0; }
+.fat-big { margin-top: 14px; border-radius: 18px; padding: 20px; background: linear-gradient(135deg, #2a2116, #171314); border: 1px solid var(--gold); display: grid; gap: 4px; }
+.fat-big span { color: var(--muted); font-size: .9rem; }
+.fat-big b { font-family: var(--display); font-weight: 400; font-size: clamp(2.2rem, 10vw, 3rem); color: var(--gold); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.fat-big small { color: var(--muted); }
+.job { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin-top: 10px; width: 100%; font: inherit; color: var(--fg); text-align: left; cursor: pointer; }
+.job .ji { display: grid; min-width: 0; }
+.job .ji span { color: var(--muted); font-size: .88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.job .jv { font-family: var(--display); font-size: 1.2rem; color: var(--gold); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.prow .tag-ok { font-size: .75rem; color: var(--ok); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Diney <em>de Souza</em></div>
+    <button class="link" type="button" id="sair" hidden>Sair</button>
+  </header>
+
+  <!-- Entrar -->
+  <section id="v-login">
+    <h1>Seu painel</h1>
+    <p class="muted">Entre com o e-mail e a senha da sua conta.</p>
+    <form class="card" id="f-login">
+      <label for="email">E-mail<input id="email" type="email" autocomplete="username" inputmode="email" required></label>
+      <label for="senha">Senha<input id="senha" type="password" autocomplete="current-password" required></label>
+      <button class="btn full" type="submit" id="entrar">Entrar</button>
+      <p class="msg" id="login-msg" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <!-- Início -->
+  <section id="v-home" hidden>
+    <h1>Olá, Diney</h1>
+    <p class="muted">O que você quer fazer?</p>
+    <div class="tiles">
+      <button class="tile wide" type="button" data-go="pedidos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 0 0-5.5-6.84V3a1.5 1.5 0 0 0-3 0v1.16A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z"/></svg>
+        <span><b>Pedidos</b><br><small>Quem quer orçamento</small></span>
+        <span class="badge" id="badge" hidden></span>
+      </button>
+      <button class="tile wide fat-tile" type="button" data-go="faturamento">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3h2v16h16v2H3V3Zm4 12 4-5 3 3 5-7 1.6 1.2-6.4 9-3-3-2.6 3.3L7 15Z"/></svg>
+        <span><b>Trabalhos e faturamento</b><br><small id="tile-fat">Aceitos e quanto faturou</small></span>
+      </button>
+      <button class="tile" type="button" data-go="fotos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2ZM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5Z"/></svg>
+        <span><b>Fotos</b><br><small id="tile-fotos">Colocar e tirar</small></span>
+      </button>
+      <button class="tile" type="button" data-go="videos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 5h11a2 2 0 0 1 2 2v2.5l4-2.5v10l-4-2.5V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></svg>
+        <span><b>Vídeos</b><br><small id="tile-videos">Por link</small></span>
+      </button>
+      <button class="tile" type="button" data-go="textos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.2V21h3.8L17.8 10 14 6.2 3 17.2ZM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8L19 8.9 20.7 7Z"/></svg>
+        <span><b>Textos do site</b><br><small>Nome, serviços, passos</small></span>
+      </button>
+      <button class="tile" type="button" data-go="contatos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.2c3.2 0 3.6 0 4.8.1 3.3.1 4.8 1.7 4.9 4.9.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 3.2-1.7 4.8-4.9 4.9-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-3.3-.1-4.8-1.7-4.9-4.9C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8C2.4 3.9 3.9 2.4 7.2 2.3 8.4 2.2 8.8 2.2 12 2.2Zm0 4.8a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4Z"/></svg>
+        <span><b>Contatos e logo</b><br><small>Instagram, WhatsApp</small></span>
+      </button>
+    </div>
+    <a class="btn ghost full" id="ver-site" href="#" target="_blank" rel="noopener" style="margin-top:14px">Ver o meu site</a>
+  </section>
+
+  <!-- Pedidos -->
+  <section id="v-pedidos" hidden>
+    <button class="link back" type="button" data-go="home">← Voltar</button>
+    <h1>Pedidos</h1>
+    <p class="muted">Toque num pedido para ver os detalhes.</p>
+    <div id="ped-list"></div>
+  </section>
+
+  <!-- Detalhe do pedido -->
+  <section id="v-pedido" hidden>
+    <button class="link back" type="button" data-go="pedidos">← Todos os pedidos</button>
+    <div class="det">
+      <span class="det-tag" id="d-tag"></span>
+      <h1 id="d-evento"></h1>
+      <p class="det-quando" id="d-quando"></p>
+      <dl class="det-lista">
+        <div><dt>Nome</dt><dd id="d-nome"></dd></div>
+        <div><dt>WhatsApp</dt><dd id="d-tel"></dd></div>
+        <div><dt>Data do evento</dt><dd id="d-data"></dd></div>
+        <div><dt>Cidade / local</dt><dd id="d-local"></dd></div>
+        <div id="d-msg-box"><dt>Mensagem</dt><dd id="d-msg"></dd></div>
+      </dl>
+      <a class="btn green full det-wa" id="d-wa" href="#" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="24" height="24"><path fill="currentColor" d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.47-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.2 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35M12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.44 9.88-9.88 9.88m8.41-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89a11.82 11.82 0 0 0-3.48-8.41z"/></svg>
+        Chamar no WhatsApp
+      </a>
+      <p class="muted" id="d-semtel" hidden>Esse pedido veio sem WhatsApp válido.</p>
+      <div class="decide" id="d-decide">
+        <label for="d-valor">Valor do trabalho (R$)<input id="d-valor" inputmode="decimal" placeholder="Ex.: 3.500,00" maxlength="14"></label>
+        <div class="decide-btns">
+          <button class="btn" type="button" id="d-aceitar">✓ Aceitar</button>
+          <button class="btn ghost red" type="button" id="d-recusar">✕ Recusar</button>
+        </div>
+        <p class="msg" id="d-msg2" aria-live="polite"></p>
+      </div>
+      <div class="aceito-box" id="d-aceito" hidden>
+        <b>Trabalho aceito</b><span id="d-aceito-valor"></span>
+        <button class="link" type="button" id="d-editar-valor">Mudar valor</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Faturamento -->
+  <section id="v-faturamento" hidden>
+    <button class="link back" type="button" data-go="home">← Voltar</button>
+    <h1>Trabalhos e faturamento</h1>
+    <div class="fat-big"><span>Faturado este mês</span><b id="f-mes">R$ 0,00</b><small id="f-total">Total: R$ 0,00</small></div>
+    <div class="stats">
+      <div class="stat"><b id="c-novos">0</b><span>Esperando</span></div>
+      <div class="stat"><b id="c-aceitos">0</b><span>Aceitos</span></div>
+      <div class="stat"><b id="c-recusados">0</b><span>Recusados</span></div>
+    </div>
+    <h2 style="margin-top:22px">Trabalhos marcados</h2>
+    <div id="f-lista"></div>
+  </section>
+
+  <!-- Fotos -->
+  <section id="v-fotos" hidden>
+    <button class="link back" type="button" data-go="home">← Voltar</button>
+    <h1>Fotos</h1>
+    <p class="muted">As fotos passam sozinhas no site a cada 7 segundos. Pode colocar quantas quiser.</p>
+    <div class="card">
+      <label class="drop" for="m-file">
+        <input id="m-file" type="file" accept="image/*" multiple>
+        <b>+ Adicionar fotos</b><span class="muted">Escolha várias de uma vez na galeria</span>
+      </label>
+      <div class="bar" id="m-bar" hidden><i id="m-bar-i"></i></div>
+      <p class="msg" id="m-msg" aria-live="polite"></p>
+    </div>
+    <h2 style="margin-top:22px"><span id="n-fotos">0</span> fotos no site</h2>
+    <div class="grid" id="fotos-list"></div>
+  </section>
+
+  <!-- Vídeos -->
+  <section id="v-videos" hidden>
+    <button class="link back" type="button" data-go="home">← Voltar</button>
+    <h1>Vídeos</h1>
+    <p class="muted">Cole o link do vídeo no <b>Instagram</b> ou no <b>YouTube</b>. No site ele toca sozinho e, no cantinho, aparece de onde veio. Até 30 links.</p>
+    <div id="links"></div>
+    <div class="card" id="novo-link">
+      <h2 id="novo-n">Link 1</h2>
+      <label for="v-url">Link do vídeo<input id="v-url" type="url" inputmode="url" placeholder="https://www.instagram.com/reel/..."></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label for="v-cat">Evento<select id="v-cat"><option>Casamento</option><option>15 anos</option></select></label>
+        <label for="v-titulo">Título (opcional)<input id="v-titulo" maxlength="80" placeholder="Ex.: Trailer Ana e Leo"></label>
+      </div>
+      <button class="btn" type="button" id="v-add">Adicionar link</button>
+      <p class="msg" id="v-msg" aria-live="polite"></p>
+    </div>
+    <div class="card">
+      <h2>Vídeo do fundo do final</h2>
+      <p class="muted" style="font-size:.9rem">Fica atrás das câmeras, bem escuro, só um pouquinho aparecendo. Use um vídeo curto (até 50 MB).</p>
+      <div class="fundo-prev" id="f-prev"><span>Sem vídeo</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label class="btn ghost" for="f-file" style="color:var(--gold)">Escolher vídeo<input id="f-file" type="file" accept="video/mp4,video/quicktime,video/webm" hidden></label>
+        <button class="del" type="button" id="f-del">Tirar vídeo</button>
+      </div>
+      <p class="msg" id="f-msg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- Textos -->
+  <section id="v-textos" hidden>
+    <button class="link back" type="button" data-go="home">← Voltar</button>
+    <h1>Textos do site</h1>
+    <div class="card">
+      <h2>Topo</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label for="t-nome-1">Nome (branco)<input id="t-nome-1" maxlength="30"></label>
+        <label for="t-nome-2">Nome (dourado)<input id="t-nome-2" maxlength="30"></label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label for="t-fotos-titulo">Título das fotos<input id="t-fotos-titulo" maxlength="30"></label>
+        <label for="t-videos-titulo">Título dos vídeos<input id="t-videos-titulo" maxlength="30"></label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Serviços</h2>
+      <label for="t-servicos-titulo">Título da seção<input id="t-servicos-titulo" maxlength="40"></label>
+      <div id="svcs" style="display:grid;gap:12px"></div>
+      <button class="btn ghost" type="button" id="add-svc">+ Adicionar serviço</button>
+    </div>
+    <div class="card">
+      <h2>Como funciona</h2>
+      <label for="t-proc-titulo">Título da seção<input id="t-proc-titulo" maxlength="40"></label>
+      <div id="passos" style="display:grid;gap:12px"></div>
+      <button class="btn ghost" type="button" id="add-passo">+ Adicionar passo</button>
+    </div>
+    <div class="card">
+      <h2>Final do site</h2>
+      <label for="t-cont-titulo">Título<input id="t-cont-titulo" maxlength="40"></label>
+    </div>
+    <div class="save-bar">
+      <button class="btn full" type="button" id="t-salvar">Salvar textos</button>
+      <p class="msg" id="t-msg" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- Contatos e logo -->
+  <section id="v-contatos" hidden>
+    <button class="link back" type="button" data-go="home">← Voltar</button>
+    <h1>Contatos e logo</h1>
+    <div class="card">
+      <h2>Instagram</h2>
+      <label for="c-ig">Seu @ do Instagram<input id="c-ig" autocapitalize="none" autocomplete="off" placeholder="@seuusuario"></label>
+    </div>
+    <div class="card">
+      <div class="switch-row">
+        <div><b>Mostrar meu WhatsApp no site</b><small>Desligado, os clientes falam com você pelo Pedir orçamento.</small></div>
+        <button type="button" class="switch" id="c-showwa" role="switch" aria-checked="false" aria-label="Mostrar meu WhatsApp no site"><i></i></button>
+      </div>
+      <div class="demo" id="c-demo" aria-hidden="true">
+        <span class="muted" style="font-size:.85rem">Assim fica no final do site</span>
+        <div class="phone">
+          <div class="ph-t">Fale com o Diney</div>
+          <div class="ph-b ph-wa">WhatsApp</div>
+          <div class="ph-b ph-ig">Instagram</div>
+          <div class="ph-b ph-orc">Pedir orçamento</div>
+          <div class="finger"></div>
+        </div>
+      </div>
+      <label for="c-wa">Número do WhatsApp com DDD<input id="c-wa" type="tel" inputmode="tel" placeholder="(91) 99999-9999"></label>
+    </div>
+    <div class="card">
+      <h2>Logo</h2>
+      <div class="logo-row">
+        <div class="logo-prev" id="c-logo-prev">Sem logo</div>
+        <div style="display:grid;gap:8px">
+          <label class="btn ghost" for="c-logo" style="color:var(--gold)">Escolher logo<input id="c-logo" type="file" accept="image/png,image/jpeg,image/webp" hidden></label>
+          <button class="del" type="button" id="c-logo-del">Tirar logo</button>
+        </div>
+      </div>
+      <p class="muted" style="font-size:.88rem">Aparece no topo do site e vira o ícone do app. Use uma imagem quadrada.</p>
+    </div>
+    <div class="save-bar">
+      <button class="btn full" type="button" id="c-salvar">Salvar</button>
+      <p class="msg" id="c-msg" aria-live="polite"></p>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="supabase.js"></script>
+<script src="config.js"></script>
+<script src="painel.js"></script>
+</body>
+</html>

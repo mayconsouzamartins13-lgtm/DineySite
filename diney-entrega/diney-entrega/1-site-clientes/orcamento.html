@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pedir orçamento · Diney de Souza</title>
+<meta name="theme-color" content="#0c0a0b">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600&family=Manrope:wght@300;400;600&family=DM+Mono:wght@400&display=swap">
+<style>
+/* Página de orçamento: uma coluna, campos grandes, tipo de evento em botões */
+:root {
+  --bg: #0c0a0b; --surface: #151213; --fg: #efe7df; --muted: #9c918a; --gold: #d9b37a;
+  --glow: rgba(232,196,140,.5); --line: rgba(239,231,223,.12); --rec: #e0483e; --zap: #25d366;
+  --display: "Bodoni Moda", "Didot", "Times New Roman", serif;
+  --body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --mono: "DM Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.6; font-weight: 300;
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) calc(40px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  overflow-x: hidden;
+}
+.bgname { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; display: flex; flex-direction: column; justify-content: space-around; }
+.bgname .row { display: flex; white-space: nowrap; width: max-content; font-family: var(--display); font-size: clamp(5rem, 16vw, 15rem); line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(232,196,140,.12); animation: drift 160s linear infinite; }
+.bgname .row:nth-child(2) { animation-direction: reverse; text-transform: uppercase; font-size: clamp(3.5rem, 11vw, 10rem); }
+.bgname .row span { padding-right: .5em; }
+.bgname::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 30%, var(--bg) 85%); }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .bgname .row { animation: none; } }
+main { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px; }
+.top a { color: var(--muted); text-decoration: none; font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
+.top a.brand { font-family: var(--display); font-size: 1.2rem; color: var(--fg); text-transform: none; letter-spacing: .02em; }
+.brand em { color: var(--gold); font-style: normal; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2.2rem, 8vw, 3.2rem); line-height: 1.05; margin: 24px 0 8px; text-wrap: balance; }
+h1 em { color: var(--gold); font-style: normal; }
+.sub { color: var(--muted); margin: 0 0 24px; }
+form { display: grid; gap: 22px; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--line); padding: clamp(20px, 5vw, 32px); border-radius: 16px; }
+label, .lbl { font-family: var(--mono); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px; }
+input, textarea {
+  font: inherit; font-weight: 400; color: var(--fg); width: 100%; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-height: 50px;
+}
+textarea { min-height: 96px; resize: vertical; }
+input:focus, textarea:focus { outline: none; border-color: var(--gold); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chip { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 14px; padding: 18px 12px; cursor: pointer; font: inherit; font-size: 1.1rem; font-family: var(--display); }
+.espera { font-family: var(--display); font-size: 1.3rem; color: var(--gold) !important; }
+.chip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--bg); font-weight: 600; }
+.send { font-family: var(--mono); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; background: var(--gold); color: var(--bg); border: 0; border-radius: 12px; padding: 18px; cursor: pointer; box-shadow: 0 0 30px rgba(232,196,140,.25); }
+.send[disabled] { opacity: .6; cursor: progress; }
+.msg { color: var(--rec); font-size: .9rem; min-height: 1.2em; margin: -8px 0 0; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.ok { text-align: center; display: grid; gap: 18px; justify-items: center; padding-top: 30px; }
+.ok .check { width: 76px; height: 76px; border-radius: 50%; border: 2px solid var(--gold); display: grid; place-items: center; color: var(--gold); box-shadow: 0 0 40px rgba(232,196,140,.3); }
+.ok .check svg { width: 38px; height: 38px; }
+.ok p { color: var(--muted); margin: 0; max-width: 30em; }
+.btns { display: grid; gap: 12px; width: 100%; }
+.cbtn { display: flex; align-items: center; gap: 14px; padding: 16px 20px; text-decoration: none; color: #fff; border-radius: 14px; text-align: left; }
+.cbtn svg { width: 30px; height: 30px; flex: none; }
+.cbtn span { display: grid; line-height: 1.25; min-width: 0; }
+.cbtn b { font-size: 1.05rem; }
+.cbtn small { opacity: .9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cbtn.wa { background: var(--zap); }
+.cbtn.ig { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); }
+.back { color: var(--gold); font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; padding: 10px; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+</style>
+</head>
+<body>
+<div class="bgname" aria-hidden="true">
+  <div class="row"><span>Diney de Souza</span><span>Diney de Souza</span><span>Diney de Souza</span><span>Diney de Souza</span></div>
+  <div class="row"><span>Diney de Souza</span><span>Diney de Souza</span><span>Diney de Souza</span><span>Diney de Souza</span></div>
+</div>
+<main>
+  <div class="top">
+    <a class="brand" href="./">Diney <em>de Souza</em></a>
+    <a href="./">← Voltar ao site</a>
+  </div>
+
+  <section id="form-view">
+    <h1>Pedir <em>orçamento</em></h1>
+    <p class="sub">O Diney filma <b>casamentos</b> e <b>festas de 15 anos</b>. Conte um pouco sobre o seu evento.</p>
+    <form id="f" novalidate>
+      <div class="hp" aria-hidden="true"><label for="site-url">Não preencha</label><input id="site-url" name="site-url" tabindex="-1" autocomplete="off"></div>
+      <div><label for="nome">Seu nome</label><input id="nome" autocomplete="name" maxlength="120" placeholder="Ex.: Mariana Costa" required></div>
+      <div><label for="tel">Seu WhatsApp</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="(91) 99999-9999" required></div>
+      <div>
+        <span class="lbl" id="tipo-l">Tipo de evento</span>
+        <div class="chips" id="tipos" role="group" aria-labelledby="tipo-l"></div>
+      </div>
+      <div class="two">
+        <div><label for="data">Data do evento</label><input id="data" type="date"></div>
+        <div><label for="local">Cidade / local</label><input id="local" maxlength="200" placeholder="Ex.: Belém, Salão Jardins"></div>
+      </div>
+      <div><label for="msg">Mensagem (opcional)</label><textarea id="msg" maxlength="2000" placeholder="Quantos convidados, o que você imagina para o vídeo..."></textarea></div>
+      <p class="msg" id="erro" aria-live="polite"></p>
+      <button class="send" type="submit" id="enviar">Enviar pedido</button>
+    </form>
+  </section>
+
+  <section class="ok" id="ok-view" hidden>
+    <div class="check"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></div>
+    <h1>Seu pedido foi <em>enviado!</em></h1>
+    <p class="espera">Espere a resposta do Diney</p>
+    <p>Agora é só esperar a resposta do Diney. Ele vai olhar o seu pedido e, se tiver a data livre, entra em contato com você.</p>
+    <a class="back" href="./">← Voltar ao site</a>
+  </section>
+</main>
+
+<script src="supabase.js"></script>
+<script src="config.js"></script>
+<script src="orcamento.js"></script>
+</body>
+</html>
